@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuvas PB | Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-wrapper">
+        <header>
+            <img src="https://lh3.googleusercontent.com/d/1Mjxa_GOQjMLlLCXZhu8YtoM4ZLq2fFQ8" class="app-logo" alt="Logo Chuvas PB">
+            <p>Informações diárias de Chuva na Paraíba</p>
+        </header>
+
+        <div class="summary-box">
+            <div class="stat">
+                <span class="stat-label">Observações</span>
+                <span class="stat-val" id="countObs">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Com Chuva</span>
+                <span class="stat-val" id="countRain">0</span>
+            </div>
+        </div>
+
+        <div class="controls-card">
+            <div class="nav-row">
+                <button id="prevBtn" class="circle-btn"><i class="fas fa-chevron-left"></i></button>
+                <div class="date-container" id="dateClicker">
+                    <i class="fas fa-calendar-day" style="margin-right:5px;color:var(--accent-blue);font-size:0.8rem;"></i>
+                    <span id="dateDisplay" class="date-badge">--/--/----</span>
+                    <input type="date" id="datePicker">
+                </div>
+                <button id="nextBtn" class="circle-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="search-input-wrapper">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" id="citySearch" placeholder="Buscar cidade ou posto...">
+            </div>
+        </div>
+
+        <div id="rainList" class="ranking-list">
+            <div class="empty-view">Carregando...</div>
+        </div>
+
+        <div class="data-source">
+            Dados oficiais fornecidos pelo Sistema SEIRA – AESA
+        </div>
+    </div>
+
+    <div id="chartModal">
+        <div class="modal-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <button id="prevMonth" class="circle-btn"><i class="fas fa-chevron-left"></i></button>
+                <h3 id="chartTitle" style="color:#0f172a;font-size:0.9rem;text-align:center;flex:1;margin:0;white-space:pre-line;"> </h3>
+                <button id="nextMonth" class="circle-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-header calendar">
+                <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+            </div>
+            <div id="calendarGrid" class="calendar"></div>
+            <div style="display:flex;gap:6px;margin-top:10px;">
+                <div class="mini-card"><span>Total</span><strong id="monthTotal">0mm</strong></div>
+                <div class="mini-card"><span>N° Dias</span><strong id="monthDays">0</strong></div>
+                <div class="mini-card"><span>Maior</span><strong id="monthMax">0mm</strong></div>
+            </div>
+            <button onclick="closeModal()" style="margin-top:10px;width:100%;background:#ef4444;color:white;border:none;padding:8px;border-radius:10px;">Fechar</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
