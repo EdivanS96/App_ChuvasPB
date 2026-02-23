@@ -289,3 +289,46 @@ document.getElementById('nextBtn').onclick = e => {
 
 
 loadMeteorology();
+
+// Abrir Sobre
+document.getElementById('aboutBtn').onclick = () => {
+    document.getElementById('aboutModal').style.display = 'flex';
+};
+
+// Gerar Boletim e Compartilhar
+document.getElementById('shareBtn').onclick = async () => {
+    // Pegamos os 12 primeiros que tenham chuva (> 0)
+    const top12 = displayedData
+        .filter(item => item.total > 0)
+        .slice(0, 12);
+
+    if (top12.length === 0) {
+        alert("Sem registros de chuva para compartilhar hoje.");
+        return;
+    }
+
+    let textoBoletim = `*🌧️ CHUVAS PB | Oficial*\n`;
+    textoBoletim += `📅 *DIA: ${dateDisplay.innerText}*\n\n`;
+    textoBoletim += `🏆 *TOP 12 MAIORES CHUVAS:*\n\n`;
+
+    top12.forEach((item, index) => {
+        const medalha = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🔹";
+        textoBoletim += `${medalha} *${item.municipio}*: ${item.total.toFixed(1)}mm\n`;
+    });
+
+    textoBoletim += `\n🔗 _Dados: AESA-PB_`;
+
+    // Tenta usar o compartilhamento nativo do celular
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Boletim de Chuvas PB',
+                text: textoBoletim,
+            });
+        } catch (err) { console.log("Erro ao compartilhar"); }
+    } else {
+        // Fallback: Copia para o clipboard se não tiver Share API
+        navigator.clipboard.writeText(textoBoletim);
+        alert("Boletim copiado para o WhatsApp!");
+    }
+};

@@ -166,3 +166,106 @@ header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spac
 .rain-green{ background:var(--rain-green); border-radius:4px; padding:2px 4px; display:flex; align-items:center; justify-content:center; }
 .rain-gray{ background:var(--rain-gray); border-radius:4px; padding:2px 4px; display:flex; align-items:center; justify-content:center; }
 .rain-empty{ background:white; color:transparent; border:1px solid #e2e8f0; border-radius:4px; padding:2px 4px; }
+
+
+
+.top-nav {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+}
+
+.top-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: 0.3s;
+}
+
+.top-btn:hover { background: rgba(255, 255, 255, 0.4); }
+
+/* Fundo do Modal - Agora com Blur em vez de preto sólido */
+.custom-modal {
+    position: fixed; 
+    inset: 0; 
+    background: rgba(30, 58, 138, 0.4); /* Azul bem clarinho transparente */
+    backdrop-filter: blur(8px); /* Efeito de vidro embaçado no fundo */
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 2000;
+    padding: 20px;
+}
+
+/* Cartão do Conteúdo */
+.about-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    max-height: 85vh;
+    border-radius: 24px;
+    padding: 25px;
+    overflow-y: auto; /* Scroll se o texto for grande */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    color: #1e293b;
+    position: relative;
+}
+
+.modal-header { text-align: center; margin-bottom: 20px; }
+.about-logo { width: 70px; margin-bottom: 10px; }
+.modal-header h2 { color: var(--main-blue); font-size: 1.2rem; }
+
+.modal-body h3 { 
+    font-size: 0.9rem; 
+    color: var(--accent-blue); 
+    margin-bottom: 5px; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+}
+
+.about-section { margin-bottom: 18px; }
+.about-section p, .about-section li { font-size: 0.8rem; line-height: 1.4; opacity: 0.9; }
+.about-section ul { padding-left: 18px; }
+
+.highlight-box {
+    background: #f0f9ff;
+    padding: 12px;
+    border-radius: 12px;
+    border-left: 4px solid var(--accent-blue);
+}
+
+.intro { text-align: center; font-size: 0.85rem; margin-bottom: 20px; }
+
+.dev-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px dashed #cbd5e1;
+}
+.dev-footer p { font-size: 0.75rem; margin: 0; }
+
+.close-about {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: var(--main-blue);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
