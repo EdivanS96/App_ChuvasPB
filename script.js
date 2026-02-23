@@ -7,8 +7,13 @@ const listDiv = document.getElementById('rainList');
 const searchInput = document.getElementById('citySearch');
 const btnNext = document.getElementById('nextBtn');
 
+// Como deve ficar:
 let today = new Date();
-datePicker.value = today.toISOString().split('T')[0];
+// Ajuste para pegar a data local no formato YYYY-MM-DD sem erro de fuso
+let localDate = today.toLocaleDateString('sv-SE'); 
+
+datePicker.value = localDate;
+datePicker.max = localDate;
 datePicker.max = datePicker.value;
 
 const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -281,5 +286,6 @@ document.getElementById('nextBtn').onclick = e => {
     datePicker.value = d.toISOString().split('T')[0];
     loadMeteorology();
 };
+
 
 loadMeteorology();
