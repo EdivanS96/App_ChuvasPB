@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/233bba8a-f8a9-4018-b483-5dc119d07ba4" width="256" height="203" alt="Log2-transparente" />
+</p>
+
+
 # 🌧️ App_ChuvasPB - Monitoramento de Chuvas na Paraíba
 
 O **App_ChuvasPB** é uma aplicação web leve e responsiva desenvolvida para facilitar a visualização dos índices pluviométricos em todo o estado da Paraíba. O objetivo é transformar os dados técnicos em uma interface amigável para o cidadão e gestores.
