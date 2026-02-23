@@ -22,9 +22,31 @@ function removeAccents(str) {
     return str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, "") : "";
 }
 
+// MELHORIA: Data com "Hoje", "Ontem" ou "Dia da Semana"
 function formatDisplay(isoDate) {
     const parts = isoDate.split('-');
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+    const todayObj = new Date();
+    todayObj.setHours(0, 0, 0, 0);
+    
+    const yesterdayObj = new Date(todayObj);
+    yesterdayObj.setDate(yesterdayObj.getDate() - 1);
+
+    const dateCompare = new Date(dateObj);
+    dateCompare.setHours(0, 0, 0, 0);
+
+    let label = "";
+    if (dateCompare.getTime() === todayObj.getTime()) {
+        label = "Hoje\n";
+    } else if (dateCompare.getTime() === yesterdayObj.getTime()) {
+        const dias = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        label = dias[dateCompare.getDay()] + "\n";
+    } else {
+        const dias = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        label = dias[dateCompare.getDay()] + "\n";
+    }
+
+    return `${label}${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
 async function ensureAllStations() {
@@ -100,8 +122,11 @@ async function loadMeteorology() {
 }
 
 function updateStats(obs, rain) {
+    const noRain = obs - rain;
+
     document.getElementById('countObs').innerText = obs;
     document.getElementById('countRain').innerText = rain;
+    document.getElementById('countNoRain').innerText = noRain;
 }
 
 function render(list) {
@@ -147,7 +172,23 @@ function applySearchFilter() {
     render(filtered);
 }
 
-searchInput.oninput = applySearchFilter;
+// MELHORIA: Controle do botão "X" de apagar busca
+// Localize a parte da busca e garanta que está assim:
+const clearBtn = document.getElementById('clearSearch');
+searchInput.oninput = () => {
+    // Se tiver texto, mostra o X, senão esconde
+    if (clearBtn) clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+    applySearchFilter();
+};
+
+if (clearBtn) {
+    clearBtn.onclick = () => {
+        searchInput.value = '';
+        clearBtn.style.display = 'none';
+        applySearchFilter();
+        searchInput.focus();
+    };
+}
 
 // --- Lógica do Modal e Calendário Corrigida ---
 
@@ -295,40 +336,199 @@ document.getElementById('aboutBtn').onclick = () => {
     document.getElementById('aboutModal').style.display = 'flex';
 };
 
-// Gerar Boletim e Compartilhar
+// MELHORIA: Gerar Boletim e Compartilhar com API Nativa
 document.getElementById('shareBtn').onclick = async () => {
-    // Pegamos os 12 primeiros que tenham chuva (> 0)
-    const top12 = displayedData
-        .filter(item => item.total > 0)
-        .slice(0, 12);
+    const informed = displayedData.filter(x => x.total !== null);
+    const withRain = informed.filter(x => x.total > 0).sort((a, b) => b.total - a.total);
+    const topList = withRain.slice(0, 10);
 
-    if (top12.length === 0) {
-        alert("Sem registros de chuva para compartilhar hoje.");
-        return;
+    if (informed.length === 0) return alert("Sem dados para compartilhar.");
+
+    // Data formatada (Ex: SEGUNDA - 23/02/2026)
+    const dateParts = datePicker.value.split('-');
+    const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+    const diasSemana = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+    document.getElementById('share-date').innerText = `${diasSemana[dateObj.getDay()]} - ${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+
+    // Atualiza Stats (Tudo em cor escura)
+    document.getElementById('share-stat-obs').innerText = informed.length;
+    document.getElementById('share-stat-rain').innerText = withRain.length;
+    document.getElementById('share-stat-no-rain').innerText = informed.length - withRain.length;
+    
+    const shareList = document.getElementById('share-list');
+    const titleElem = document.getElementById('share-list-title');
+
+    if (withRain.length > 0) {
+        titleElem.innerText = topList.length >= 10 ? "TOP 10 MAIORES CHUVAS" : "TOP MAIORES CHUVAS";
+        shareList.style.justifyContent = "flex-start";
+        
+        // Cards Individuais com borda lateral azul e valor em PRETO
+        shareList.innerHTML = topList.map((item, i) => `
+            <div style="background: white; border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid #0ea5e9; box-shadow: 0 3px 8px rgba(0,0,0,0.05); margin-bottom: 2px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="min-width: 28px; height: 28px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #1e3a8a;">
+                        ${i + 1}
+                    </div>
+                    <div style="line-height: 1.2;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">${item.municipio.toUpperCase()}</div>
+                        <div style="font-size: 0.65rem; color: #64748b; font-weight: 500;">${item.posto}</div>
+                    </div>
+                </div>
+                <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.2rem; font-weight: 800; color: #0f172a;">${item.total.toFixed(1)}<small style="font-size: 0.6rem; color: #94a3b8; margin-left: 2px;">mm</small></span>
+                    <i class="fas fa-droplet" style="color: #0ea5e9; font-size: 0.9rem;"></i>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        // Esquema do Sol e Mensagem de Sem Chuva
+        titleElem.innerText = "MONITORAMENTO DIÁRIO";
+        shareList.style.justifyContent = "center";
+        shareList.innerHTML = `
+            <div style="text-align: center; padding: 40px 10px; background: rgba(255,255,255,0.2); border-radius: 20px; border: 1.5px dashed rgba(30, 58, 138, 0.2);">
+                <i class="fas fa-cloud-sun" style="font-size: 4.5rem; color: #1e3a8a; margin-bottom: 15px; opacity: 0.8;"></i>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #1e3a8a; text-transform: uppercase;">Sem registros de chuva</div>
+                <p style="font-size: 0.85rem; color: #0f172a; margin-top: 5px; font-weight: 500;">Não houve precipitação nos postos monitorados nesta data.</p>
+            </div>
+        `;
     }
 
-    let textoBoletim = `*🌧️ CHUVAS PB | Oficial*\n`;
-    textoBoletim += `📅 *DIA: ${dateDisplay.innerText}*\n\n`;
-    textoBoletim += `🏆 *TOP 12 MAIORES CHUVAS:*\n\n`;
+    // FRASE DE ELABORAÇÃO COM CONDIÇÃO DE MÊS ATUAL
+    const now = new Date();
+    const isThisMonth = (dateObj.getMonth() === now.getMonth() && dateObj.getFullYear() === now.getFullYear());
+    const timeStr = now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+    const dateStr = now.toLocaleDateString('pt-BR');
+    
+    document.getElementById('share-meta').innerText = isThisMonth 
+        ? `Dados Parciais | Elaboração: ${timeStr} - ${dateStr}`
+        : `Elaboração: ${timeStr} - ${dateStr}`;
 
-    top12.forEach((item, index) => {
-        const medalha = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🔹";
-        textoBoletim += `${medalha} *${item.municipio}*: ${item.total.toFixed(1)}mm\n`;
+    // Captura com quinas transparentes para as bordas arredondadas funcionarem na foto
+    const card = document.getElementById('share-card');
+    const canvas = await html2canvas(card, { 
+        scale: 3, 
+        useCORS: true, 
+        backgroundColor: null 
     });
+    
+    canvas.toBlob(async (blob) => {
+        const file = new File([blob], 'boletim-chuvas-pb.png', { type: 'image/png' });
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file] });
+        } else {
+            const link = document.createElement('a');
+            link.download = `boletim-${datePicker.value}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    }, 'image/png');
+};
 
-    textoBoletim += `\n🔗 _Dados: AESA-PB_`;
 
-    // Tenta usar o compartilhamento nativo do celular
-    if (navigator.share) {
-        try {
-            await navigator.share({
-                title: 'Boletim de Chuvas PB',
-                text: textoBoletim,
-            });
-        } catch (err) { console.log("Erro ao compartilhar"); }
-    } else {
-        // Fallback: Copia para o clipboard se não tiver Share API
-        navigator.clipboard.writeText(textoBoletim);
-        alert("Boletim copiado para o WhatsApp!");
+
+// Botão de atualizar/direita
+document.getElementById('refreshBtn').onclick = () => {
+    loadMeteorology(); 
+};
+
+// Botão de calendário/esquerda
+document.getElementById('openCalendarBtn').onclick = (e) => {
+    e.stopPropagation();
+    const today = new Date();
+    const localDate = today.toLocaleDateString('sv-SE');
+    datePicker.value = localDate;
+    loadMeteorology();
+};
+
+
+document.getElementById('shareMonthBtn').onclick = async () => {
+    if (!selectedStation) return alert("Selecione uma estação primeiro.");
+
+    const month = selectedMonth.getMonth();
+    const year = selectedMonth.getFullYear();
+    const monthName = monthNames[month];
+    const now = new Date();
+    const isThisMonth = (month === now.getMonth() && year === now.getFullYear());
+    const timeStr = now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+    const dateStr = now.toLocaleDateString('pt-BR');
+
+    // 1. CONTAINER PRINCIPAL
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.width = '460px';
+    // GRADIENTE IDENTICO AO SITE: ESCURO EMBAIXO, CLARO EM CIMA
+    container.style.background = 'linear-gradient(0deg, #e0f2fe 0%, #f0f9ff 100%)'; 
+    container.style.padding = '20px';
+    container.style.fontFamily = "'Poppins', sans-serif";
+    container.style.borderRadius = '25px';
+
+    // 2. CONTEÚDO HTML
+    container.innerHTML = `
+        <div style="text-align: center; margin-bottom: 12px;">
+            <img src="https://lh3.googleusercontent.com/d/1Mjxa_GOQjMLlLCXZhu8YtoM4ZLq2fFQ8" style="width: 100px; margin-bottom: 5px;">
+            <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #0f172a; margin: 0;">INFORMAÇÕES MENSAIS DE CHUVA</p>
+            <div style="font-size: 1.1rem; font-weight: 800; color: #1e3a8a; text-transform: uppercase; line-height: 1.2; margin-top: 5px;">
+                ${selectedStation.municipio} <br>
+                <span style="font-size: 0.8rem; font-weight: 600; color: #475569;">POSTO: ${selectedStation.posto}</span>
+            </div>
+            <div style="margin-top: 8px; font-size: 1.1rem; font-weight: 800; color: #000;">${monthName.toUpperCase()} - ${year}</div>
+        </div>
+
+        <div style="background: white; border-radius: 18px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 800; font-size: 0.75rem; color: #000; margin-bottom: 8px; border-bottom: 2px solid #000; padding-bottom: 5px;">
+                <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
+                ${document.getElementById('calendarGrid').innerHTML}
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 15px;">
+            <div style="flex: 1; background: rgba(255,255,255,0.6); padding: 10px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.8);">
+                <span style="font-size: 0.55rem; display: block; font-weight: 700; text-transform: uppercase; color: #64748b;">Acumulado</span>
+                <strong style="font-size: 1.1rem; color: #0f172a;">${document.getElementById('monthTotal').innerText}</strong>
+            </div>
+            <div style="flex: 1; background: rgba(255,255,255,0.6); padding: 10px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.8);">
+                <span style="font-size: 0.55rem; display: block; font-weight: 700; text-transform: uppercase; color: #64748b;">N° de Dias</span>
+                <strong style="font-size: 1.1rem; color: #0f172a;">${document.getElementById('monthDays').innerText}</strong>
+            </div>
+            <div style="flex: 1; background: rgba(255,255,255,0.6); padding: 10px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.8);">
+                <span style="font-size: 0.55rem; display: block; font-weight: 700; text-transform: uppercase; color: #64748b;">Maior Dia</span>
+                <strong style="font-size: 1.1rem; color: #0f172a;">${document.getElementById('monthMax').innerText}</strong>
+            </div>
+        </div>
+
+        <div style="margin-top: 15px; text-align: center; font-size: 0.65rem; color: #0f172a; font-weight: 600;">
+            <p style="margin: 0;">${isThisMonth ? `DADOS PARCIAIS | Elaboração: ${timeStr} - ${dateStr}` : `Elaboração: ${timeStr} - ${dateStr}`}</p>
+            <p style="opacity: 0.7; font-size: 0.6rem; margin-top: 2px;">FONTE DOS DADOS: PORTAL SEIRA - AESA-PB</p>
+        </div>
+    `;
+
+    document.body.appendChild(container);
+
+    try {
+        const canvas = await html2canvas(container, {
+            scale: 3,
+            useCORS: true,
+            backgroundColor: null
+        });
+
+        document.body.removeChild(container);
+
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], `chuvas-mensal-${selectedStation.municipio}.png`, { type: 'image/png' });
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file] });
+            } else {
+                const link = document.createElement('a');
+                link.download = `boletim-mensal-${monthName}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }, 'image/png');
+    } catch (err) {
+        alert("Erro ao gerar imagem.");
+        if(container.parentNode) document.body.removeChild(container);
     }
 };

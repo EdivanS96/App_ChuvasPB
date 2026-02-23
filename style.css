@@ -27,19 +27,51 @@ header h1 { font-size:1.6rem; font-weight:700; letter-spacing:-1px; }
 header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#0f172a; }
 
 .summary-box{
-    background:rgba(255,255,255,0.4);
-    backdrop-filter:blur(15px);
-    border:1px solid rgba(255,255,255,0.5);
-    border-radius:16px;
-    padding:12px;
-    display:flex;
-    justify-content:space-around;
-    margin-bottom:12px;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 14px;
+    padding: 8px 10px; /* ↓ MENOR ALTURA */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
     color:#0f172a;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.06);
 }
-.stat{text-align:center;}
-.stat-val{display:block;font-size:1.3rem;font-weight:700;}
-.stat-label{font-size:0.55rem;text-transform:uppercase;font-weight:600;opacity:0.8;}
+
+.stat{
+    flex:1;
+    text-align:center;
+}
+
+.stat:not(:last-child){
+    border-right:1px solid rgba(0,0,0,0.08);
+}
+.stat-val{
+    display:block;
+    font-size:1.1rem; /* ↓ menor */
+    font-weight:800;
+    line-height:1.1;
+}
+.stat-label{
+    font-size:0.55rem;
+    text-transform:uppercase;
+    font-weight:700;
+    opacity:0.7;
+    letter-spacing:0.5px;
+}
+
+
+.rain-positive{
+    color:#16a34a;
+}
+
+.rain-zero{
+    color:#64748b;
+}
+
+
 
 .controls-card{
     background:white;
@@ -55,22 +87,75 @@ header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spac
     justify-content:space-between;
     margin-bottom:10px;
 }
+
+/* MELHORIA SOLICITADA: Seletor de data Estilo Cápsula */
 .date-container{
     position:relative;
     display:flex;
     align-items:center;
-    background:#f1f5f9;
-    padding:6px 12px;
-    border-radius:10px;
+    justify-content: center;
+    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+    padding: 10px 25px;
+    border-radius: 50px; /* Formato Pílula */
     cursor:pointer;
+    min-width: 170px;
+    border: none;
+    box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.05);
 }
-.date-badge{ font-weight:700; color:var(--accent-blue); font-size:0.85rem; }
+
+.date-badge { 
+    font-weight:800; 
+    color:var(--main-blue); 
+    font-size:0.85rem; 
+    display: block;
+    text-align: center;
+    line-height: 1.1;
+    white-space: pre-line;
+    text-transform: uppercase;
+}
+
 #datePicker{ position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:20; }
-.circle-btn{ width:36px; height:36px; border-radius:50%; border:none; background:var(--accent-blue); color:white; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-.circle-btn:disabled{opacity:0.3; cursor:not-allowed;}
+
+/* RESTAURAÇÃO DO ESTILO V1: Botão Azul com Seta Branca */
+.circle-btn { 
+    width: 36px; 
+    height: 36px; 
+    border-radius: 50%; 
+    border: none; 
+    background: var(--accent-blue) !important; 
+    color: white !important; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.circle-btn i {
+    color: white !important;
+}
+
+.circle-btn:disabled {
+    opacity: 0.3; 
+    cursor: not-allowed;
+}
+
 .search-input-wrapper{position:relative;}
-.search-input-wrapper i{ position:absolute; left:12px; top:11px; color:#94a3b8; font-size:0.8rem; }
-.search-input-wrapper input{ width:100%; border:1.5px solid #e2e8f0; padding:8px 12px 8px 35px; border-radius:12px; font-size:0.85rem;}
+.search-input-wrapper i.fa-magnifying-glass{ position:absolute; left:12px; top:11px; color:#94a3b8; font-size:0.8rem; }
+.search-input-wrapper input{ width:100%; border:1.5px solid #e2e8f0; padding:8px 35px 8px 35px; border-radius:12px; font-size:0.85rem;}
+
+/* MELHORIA: X da pesquisa visível */
+#clearSearch {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    color: #475569 !important;
+    font-size: 1.1rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: 0.2s;
+}
+#clearSearch:hover { color: #ef4444 !important; }
 
 .ranking-list{display:flex;flex-direction:column;gap:6px;}
 .rain-card{
@@ -167,8 +252,6 @@ header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spac
 .rain-gray{ background:var(--rain-gray); border-radius:4px; padding:2px 4px; display:flex; align-items:center; justify-content:center; }
 .rain-empty{ background:white; color:transparent; border:1px solid #e2e8f0; border-radius:4px; padding:2px 4px; }
 
-
-
 .top-nav {
     position: absolute;
     top: 15px;
@@ -181,28 +264,31 @@ header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spac
 }
 
 .top-btn {
-    background: rgba(255, 255, 255, 0.2);
+    background: none;
     border: none;
-    color: white;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+    color: #ffffff;
+    width: auto;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    backdrop-filter: blur(5px);
+    backdrop-filter: none;
     transition: 0.3s;
+    font-size: 1.2rem;
+    filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.3)); 
 }
 
-.top-btn:hover { background: rgba(255, 255, 255, 0.4); }
+.top-btn:hover { 
+    transform: scale(1.1);
+    filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.4));
+}
 
-/* Fundo do Modal - Agora com Blur em vez de preto sólido */
 .custom-modal {
     position: fixed; 
     inset: 0; 
-    background: rgba(30, 58, 138, 0.4); /* Azul bem clarinho transparente */
-    backdrop-filter: blur(8px); /* Efeito de vidro embaçado no fundo */
+    background: rgba(30, 58, 138, 0.4); 
+    backdrop-filter: blur(8px); 
     display: none; 
     align-items: center; 
     justify-content: center; 
@@ -210,7 +296,6 @@ header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spac
     padding: 20px;
 }
 
-/* Cartão do Conteúdo */
 .about-card {
     background: white;
     width: 100%;
@@ -218,7 +303,7 @@ header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spac
     max-height: 85vh;
     border-radius: 24px;
     padding: 25px;
-    overflow-y: auto; /* Scroll se o texto for grande */
+    overflow-y: auto;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     color: #1e293b;
     position: relative;
@@ -268,4 +353,84 @@ header p { opacity:0.9; font-size:0.75rem; text-transform:uppercase; letter-spac
     color: white;
     font-weight: 600;
     cursor: pointer;
+}
+
+
+.date-container{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+    padding: 10px 35px;
+    border-radius: 50px;
+    cursor:pointer;
+    min-width: 190px;
+    box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Ícones */
+.date-icon{
+    width:16px;
+    height:16px;
+    stroke:#64748b;
+    flex-shrink:0;
+}
+
+.date-icon.right{
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.date-icon.right:hover{
+    stroke:#2563eb;
+    transform:scale(1.15);
+}
+
+
+.date-wrapper{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.date-side-btn{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    border:none;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#2563eb;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.date-side-btn:hover{
+    transform:scale(1.1);
+    background:#2563eb;
+    color:white;
+}
+
+.date-container{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+    padding: 10px 22px;
+    border-radius: 50px;
+    min-width: 160px;
+    cursor:pointer;
+}
+
+#datePicker{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
 }

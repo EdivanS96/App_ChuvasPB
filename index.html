@@ -60,10 +60,6 @@
     </div>
 </div>
 
-
-
-
-
     <div class="app-wrapper">
         <header>
             <img src="https://lh3.googleusercontent.com/d/1Mjxa_GOQjMLlLCXZhu8YtoM4ZLq2fFQ8" class="app-logo" alt="Logo Chuvas PB">
@@ -75,27 +71,53 @@
                 <span class="stat-label">Observações</span>
                 <span class="stat-val" id="countObs">0</span>
             </div>
+
             <div class="stat">
                 <span class="stat-label">Com Chuva</span>
-                <span class="stat-val" id="countRain">0</span>
+                <span class="stat-val rain-positive" id="countRain">0</span>
+            </div>
+
+            <div class="stat">
+                <span class="stat-label">Sem Chuva</span>
+                <span class="stat-val rain-zero" id="countNoRain">0</span>
             </div>
         </div>
 
-        <div class="controls-card">
-            <div class="nav-row">
-                <button id="prevBtn" class="circle-btn"><i class="fas fa-chevron-left"></i></button>
-                <div class="date-container" id="dateClicker">
-                    <i class="fas fa-calendar-day" style="margin-right:5px;color:var(--accent-blue);font-size:0.8rem;"></i>
-                    <span id="dateDisplay" class="date-badge">--/--/----</span>
-                    <input type="date" id="datePicker">
-                </div>
-                <button id="nextBtn" class="circle-btn"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="search-input-wrapper">
-                <i class="fas fa-magnifying-glass"></i>
-                <input type="text" id="citySearch" placeholder="Buscar cidade ou posto...">
-            </div>
+       <div class="controls-card">
+                <div class="nav-row">
+    <button id="prevBtn" class="circle-btn">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <div class="date-wrapper">
+        <!-- Ícone esquerdo -->
+        <button class="date-side-btn" id="openCalendarBtn">
+            <i class="fas fa-calendar-day"></i>
+        </button>
+
+        <!-- Cápsula da Data -->
+        <div class="date-container" id="dateClicker">
+            <span id="dateDisplay" class="date-badge">--/--/----</span>
+            <input type="date" id="datePicker">
         </div>
+
+        <!-- Ícone direito (Hoje) -->
+        <button class="date-side-btn refresh-btn" id="refreshBtn">
+            <i class="fas fa-rotate-right"></i>
+        </button>
+    </div>
+
+    <button id="nextBtn" class="circle-btn">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+</div>
+
+                <div class="search-input-wrapper">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input type="text" id="citySearch" placeholder="Buscar cidade ou posto...">
+                    <i class="fas fa-times-circle" id="clearSearch" style="display:none; position:absolute; right:12px; top:10px; color: #64748b; font-size: 1.1rem; cursor:pointer; z-index:10;"></i>
+                </div>
+            </div>
 
         <div id="rainList" class="ranking-list">
             <div class="empty-view">Carregando...</div>
@@ -123,9 +145,49 @@
                 <div class="mini-card"><span>Maior</span><strong id="monthMax">0mm</strong></div>
             </div>
             <button onclick="closeModal()" style="margin-top:10px;width:100%;background:#ef4444;color:white;border:none;padding:8px;border-radius:10px;">Fechar</button>
+            <button id="shareMonthBtn" style="margin-top:8px;width:100%;background:#0ea5e9;color:white;border:none;padding:8px;border-radius:10px;"> <i class="fas fa-share-nodes"></i> Compartilhar</button>
         </div>
     </div>
 
+    
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="script.js"></script>
+
+<div style="position: absolute; top: -9999px; left: -9999px;">
+    <div id="share-card" style="width: 460px; background: var(--bg-gradient); padding: 15px 20px; color: #0f172a; font-family: 'Poppins', sans-serif; border-radius: 25px; overflow: hidden;">
+        
+        <div style="text-align: center; margin-bottom: 12px;">
+            <img src="https://lh3.googleusercontent.com/d/1Mjxa_GOQjMLlLCXZhu8YtoM4ZLq2fFQ8" style="width: 100px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+            <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #0f172a; margin-top: 5px;">INFORMAÇÕES DIÁRIAS DE CHUVA NA PARAÍBA</p>
+            <div id="share-date" style="font-size: 1rem; font-weight: 800; color: #1e3a8a; text-transform: uppercase;"></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 12px; background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); padding: 10px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.5);">
+            <div style="flex: 1; text-align: center;">
+                <span style="font-size: 0.55rem; display: block; font-weight: 700; text-transform: uppercase; opacity: 0.8;">Informes</span>
+                <strong id="share-stat-obs" style="font-size: 1.2rem; color: #0f172a;">0</strong>
+            </div>
+            <div style="flex: 1; text-align: center; border-left: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1);">
+                <span style="font-size: 0.55rem; display: block; font-weight: 700; text-transform: uppercase; opacity: 0.8;">Chuva</span>
+                <strong id="share-stat-rain" style="font-size: 1.2rem; color: #0f172a;">0</strong>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <span style="font-size: 0.55rem; display: block; font-weight: 700; text-transform: uppercase; opacity: 0.8;">Sem Chuva</span>
+                <strong id="share-stat-no-rain" style="font-size: 1.2rem; color: #475569;">0</strong>
+            </div>
+        </div>
+        
+        <h3 id="share-list-title" style="font-size: 0.8rem; text-align: center; margin-bottom: 10px; color: #1e3a8a; font-weight: 800; text-transform: uppercase;"></h3>
+        
+        <div id="share-list" style="display: flex; flex-direction: column; gap: 5px; min-height: 350px;"></div>
+        
+        <div style="margin-top: 15px; text-align: center; font-size: 0.65rem; color: #0f172a; font-weight: 600;">
+            <p id="share-meta" style="margin: 0;"></p>
+            <p style="opacity: 0.7; font-size: 0.6rem;">FONTE DOS DADOS: PORTAL SEIRA - AESA-PB</p>
+        </div>
+    </div>
+</div>
 </body>
 </html>
